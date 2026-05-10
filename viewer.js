@@ -27,7 +27,11 @@ const Viewer = (() => {
   // ── Setup event listeners ──────────────────────────────────
   function setupEventListeners() {
     document.getElementById("filterDate").addEventListener("change", () => {
-      filterData();
+      fetchData(); // Refresh data from Firebase when date changes
+    });
+
+    document.getElementById("refreshDataBtn").addEventListener("click", () => {
+      fetchData();
     });
 
     document.getElementById("filterAbsentTeacher").addEventListener("input", (e) => {

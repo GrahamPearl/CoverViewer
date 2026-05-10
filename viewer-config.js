@@ -40,7 +40,18 @@ const ViewerConfig = (() => {
   function loadFromStorage() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : null;
+      const schoolId = localStorage.getItem(SCHOOL_STORAGE_KEY);
+      const parsed = stored ? JSON.parse(stored) : {};
+      if (schoolId) parsed.schoolId = schoolId;
+      
+      // Filter out empty strings so they don't overwrite valid env/default values
+      const obj = {};
+      for (const [k, v] of Object.entries(parsed)) {
+        if (v !== "" && v !== null && v !== undefined) {
+          obj[k] = v;
+        }
+      }
+      return Object.keys(obj).length > 0 ? obj : null;
     } catch {
       return null;
     }
@@ -50,7 +61,7 @@ const ViewerConfig = (() => {
   async function mergeConfig() {
     const env = await loadEnvFile();
     const stored = loadFromStorage();
-    return { ...DEFAULTS, ...env, ...stored };
+    return { ...DEFAULTS, ...(env || {}), ...(stored || {}) };
   }
 
   // Save config to localStorage
