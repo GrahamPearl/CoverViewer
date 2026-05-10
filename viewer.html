@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cover Data Viewer</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="./viewer-styles.css" />
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark bg-dark sticky-top">
+    <div class="container-fluid">
+      <span class="navbar-brand mb-0 h5">📊 Cover Data Viewer</span>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#settingsModal">
+          ⚙️ Settings
+        </button>
+        <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#exportModal">
+          ⬇️ Export
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <div class="container-fluid py-4">
+    <!-- Date & Filter Bar -->
+    <div class="card mb-4">
+      <div class="card-header bg-light">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-2">
+            <label class="form-label small fw-semibold">Date</label>
+            <input type="date" id="filterDate" class="form-control form-control-sm" />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label small fw-semibold">Absent Teacher</label>
+            <input type="text" id="filterAbsentTeacher" class="form-control form-control-sm" placeholder="Search..." />
+            <div id="absentTeacherDropdown" class="dropdown-menu" style="display: none; width: 100%; position: static;">
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label small fw-semibold">Cover Teacher</label>
+            <input type="text" id="filterCoverTeacher" class="form-control form-control-sm" placeholder="Search..." />
+            <div id="coverTeacherDropdown" class="dropdown-menu" style="display: none; width: 100%; position: static;">
+            </div>
+          </div>
+
+          <div class="col-md-2 d-flex gap-1">
+            <button id="clearFiltersBtn" class="btn btn-sm btn-outline-secondary w-100">Clear Filters</button>
+          </div>
+
+          <div class="col-md-2 text-end">
+            <small id="resultCount" class="text-muted">Loading...</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div id="statsBar" class="card mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+      <div class="card-body">
+        <div class="row text-center g-3">
+          <div class="col-md-2">
+            <div style="font-size: 1.4rem; font-weight: bold;" id="statTotal">—</div>
+            <small>Total Records</small>
+          </div>
+          <div class="col-md-2">
+            <div style="font-size: 1.4rem; font-weight: bold;" id="statDates">—</div>
+            <small>Dates</small>
+          </div>
+          <div class="col-md-2">
+            <div style="font-size: 1.4rem; font-weight: bold;" id="statAbsentUnique">—</div>
+            <small>Unique Absent</small>
+          </div>
+          <div class="col-md-2">
+            <div style="font-size: 1.4rem; font-weight: bold;" id="statCoverUnique">—</div>
+            <small>Unique Cover</small>
+          </div>
+          <div class="col-md-2">
+            <div style="font-size: 1.4rem; font-weight: bold;" id="statTopAbsent">—</div>
+            <small>Top Absent</small>
+          </div>
+          <div class="col-md-2">
+            <div style="font-size: 1.4rem; font-weight: bold;" id="statTopCover">—</div>
+            <small>Top Cover</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="cursor: pointer;" data-sort="date">📅 Date</th>
+              <th style="cursor: pointer;" data-sort="week">Week</th>
+              <th style="cursor: pointer;" data-sort="coveredTeacher">Absent Teacher</th>
+              <th style="cursor: pointer;" data-sort="absentReason">Reason</th>
+              <th style="cursor: pointer;" data-sort="coverTeacher">Cover Teacher</th>
+              <th style="cursor: pointer;" data-sort="period">Period</th>
+              <th style="cursor: pointer;" data-sort="subject">Subject</th>
+              <th>Class</th>
+              <th>Venue</th>
+            </tr>
+          </thead>
+          <tbody id="dataTable">
+            <tr>
+              <td colspan="9" class="text-center text-muted py-4">Loading data...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal fade" id="settingsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title">⚙️ Viewer Settings</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <h6 class="border-bottom pb-2">Firebase Configuration</h6>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">School ID</label>
+            <input type="text" id="settingSchoolId" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">API Key</label>
+            <input type="text" id="settingApiKey" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Project ID</label>
+            <input type="text" id="settingProjectId" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Auth Domain</label>
+            <input type="text" id="settingAuthDomain" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Storage Bucket</label>
+            <input type="text" id="settingStorageBucket" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Messaging Sender ID</label>
+            <input type="text" id="settingMessagingSenderId" class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">App ID</label>
+            <input type="text" id="settingAppId" class="form-control" />
+          </div>
+          <button id="testConnectionBtn" class="btn btn-outline-primary w-100 mb-2">🔗 Test Connection</button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Modal -->
+  <div class="modal fade" id="exportModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title">⬇️ Export Data</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body d-grid gap-2">
+          <button id="exportCsvBtn" class="btn btn-outline-dark">📄 Export to CSV</button>
+          <button id="exportExcelBtn" class="btn btn-outline-dark">📊 Export to Excel (with Summary)</button>
+          <button id="printBtn" class="btn btn-outline-dark">🖨️ Print</button>
+          <hr />
+          <div class="alert alert-info small">
+            <strong>ℹ️ Info:</strong> Exports include currently filtered data. Clear filters to export all records.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/2.8.0/xlsx.full.min.js"></script>
+
+  <!-- Shared Firebase adapter (from main project) -->
+  <script src="./firebase-adapter.js"></script>
+
+  <!-- Viewer scripts -->
+  <script src="./viewer-config.js"></script>
+  <script src="./viewer-export.js"></script>
+  <script src="./viewer.js"></script>
+</body>
+</html>
